@@ -10,10 +10,11 @@ import cors from "cors";
 import UserRoutes from "./Kanbas/Users/routes.js";
 import session from "express-session";
 
-const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
-mongoose.connect(CONNECTION_STRING);
+// const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
+// mongoose.connect(CONNECTION_STRING);
   
 const app = express();
+app.use(express.json())
 app.use(
   cors({
     credentials: true,
@@ -35,6 +36,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 app.use(session(sessionOptions));
 
+
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
@@ -43,3 +45,5 @@ Lab5(app)
 Hello(app)
 
 app.listen(process.env.PORT || 4000)
+
+console.log(`运行在${process.env.PORT || 4000}`);

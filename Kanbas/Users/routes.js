@@ -36,6 +36,8 @@ export default function UserRoutes(app) {
         res.json(status);
     };
     const signup = async (req, res) => {
+       try{
+        console.log(req.body.username,'signup');
         const user = await dao.findUserByUsername(req.body.username);
         if (user) {
             res.status(400).json({message: "Username already taken"});
@@ -43,31 +45,51 @@ export default function UserRoutes(app) {
         }
         const currentUser = await dao.createUser(req.body);
         req.session["currentUser"] = currentUser;
-
         res.json(currentUser);
+       }catch(err){
+        res.json({
+            message:"error",
+            err:err.message||'服务器错误'
+        })
+       }
     };
     const signin = async (req, res) => {
         const {username, password} = req.body;
-        const currentUser = await dao.findUserByCredentials(username, password);
-        if (currentUser) {
-            req.session["currentUser"] = currentUser;
-            res.json(currentUser);
-        } else {
-            res.status(401).json({message: "Unable to login. Try again later."});
+        console.log(username, password,'signin');
+        try{
+            const currentUser = await dao.findUserByCredentials(username, password);
+            if (currentUser) {
+                req.session["currentUser"] = currentUser;
+                res.json(currentUser);
+            } else {
+                res.status(401).json({message: "Unable to login. Try again later."});
+            }
+        }catch(err){
+            res.json({
+                message:"error",
+                err:err.message||'服务器错误'
+            })
         }
+       
     };
     const signout = (req, res) => {
         req.session.destroy();
         res.sendStatus(200);
     };
     const profile = async (req, res) => {
-        const currentUser = req.session["currentUser"];
-        if (!currentUser) {
-            res.sendStatus(401);
-            return;
-        }
-
+        try{
+            const currentUser = req.session["currentUser"];
+            if (!currentUser) {
+              res.sendStatus(401);
+              return;
+            }
         res.json(currentUser);
+        }catch(err){
+            res.json({
+                message:"error",
+                err:err.message||'服务器错误'
+            })
+        }
     };
     app.get("/api/users", findAllUsers);
     app.post("/api/users", createUser);
